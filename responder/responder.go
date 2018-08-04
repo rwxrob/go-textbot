@@ -5,15 +5,22 @@ import (
 	s "strings"
 )
 
-var Responder = &tb.Responder{
+type Responder struct{}
 
-	UUID: "090c0e4b-663b-408b-8ee8-dd1e549a52ca",
-
-	RespondTo: func(t string, c *tb.State) string {
-		t = s.ToLower(t)
-		if s.HasPrefix(t, "show state") {
-			c.PrettyPrint()
-		}
-		return ""
-	},
+func (r *Responder) UUID() string {
+	return "090c0e4b-663b-408b-8ee8-dd1e549a52ca"
 }
+
+func (r *Responder) Keys() []string {
+	return []string{}
+}
+
+func (r *Responder) RespondTo(t string, c *tb.State) string {
+	t = s.ToLower(t)
+	if s.HasPrefix(t, "show state") {
+		return c.Pretty()
+	}
+	return ""
+}
+
+func (r *Responder) String() string { return tb.JSONString(r) }

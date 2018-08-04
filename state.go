@@ -2,28 +2,14 @@ package textbot
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
-	"os/user"
 	"path"
 	"sync"
 	"time"
 )
-
-var NewerCacheError = errors.New("Newer cache file detected.")
-
-type Data map[string]interface{}
-
-func (d Data) String() string {
-	byt, err := json.Marshal(d)
-	if err != nil {
-		return fmt.Sprintf("{\"ERROR\":\"%v\"}", err)
-	}
-	return string(byt)
-}
 
 type State struct {
 	mu      sync.Mutex
@@ -108,17 +94,31 @@ func NewStateFromFile(path string, args ...string) (*State, error) {
 // func ImportFile
 // func ImportJSON
 
-func (jc *State) Get(key string) interface{} {
+func (jc *State) Get(keys ...string) interface{} {
 	jc.mu.Lock()
 	defer jc.mu.Unlock()
-	return jc.Data[key]
+	n := len(keys)
+	key := keys[n-1]
+	if n == 1 {
+		return jc.Data[key]
+	}
+	//TODO unwind
+	return nil
 }
 
-func (jc *State) Set(key string, val interface{}) {
+func (jc *State) Set(params ...interface{}) {
 	jc.mu.Lock()
 	defer jc.mu.Unlock()
-	jc.Data[key] = val
-	jc.unsaved = true
+	n := len(params)
+	if n < 2 {
+		panic(MissingParams)
+	}
+	val := params[n-1]
+	if n == 2 {
+		jc.Data[params[n-2].(string)] = val
+		jc.unsaved = true
+	}
+	//TODO wind, magically inflate
 }
 
 // Load initializes the State object with data freshly loaded from the
@@ -209,25 +209,13 @@ func (jc *State) ForceSave() error {
 }
 
 func (jc *State) String() string {
-	byt, err := json.Marshal(jc)
-	if err != nil {
-		return fmt.Sprintf("{\"ERROR\":\"%v\"}", err)
-	}
-	return string(byt)
+	return JSONString(jc)
 }
 
-func (jc *State) PrettyPrint() {
+func (jc *State) Pretty() string {
 	byt, err := json.MarshalIndent(jc, "", "  ")
 	if err != nil {
 		fmt.Sprintf("{\"ERROR\":\"%v\"}", err)
 	}
-	fmt.Println(string(byt))
-}
-
-func HomeDotDir() string {
-	usr, err := user.Current()
-	if err != nil {
-		panic(err)
-	}
-	return path.Join(usr.HomeDir, "."+path.Base(os.Args[0]))
+	return string(byt)
 }

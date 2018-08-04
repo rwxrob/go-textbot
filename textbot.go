@@ -7,34 +7,61 @@ import (
 )
 
 type TextBot struct {
-	responders []*Responder
-	index      map[string]*Responder
+	responders []Responder
+	index      map[string]Responder
 	state      *State
+	meta       *Map
+	keys       []string
 }
 
-func New() *TextBot {
+func New(responders ...Responder) *TextBot {
 	tb := new(TextBot)
-	tb.index = map[string]*Responder{}
+	tb.index = map[string]Responder{}
 	tb.state = NewState()
+	tb.Add(responders...)
 	tb.state.Every = "10s"
 	tb.state.Load()
+	tb.Set("prompt", "> ")
 	return tb
 }
 
-func (tb *TextBot) Add(responders ...*Responder) *TextBot {
+func (tb *TextBot) Keys() []string { return tb.keys }
+
+func (tb *TextBot) Set(params ...interface{}) {
+	p := []interface{}{"_"}
+	p = append(p, params...)
+	tb.state.Set(p...)
+}
+
+func (tb *TextBot) Get(keys ...string) interface{} {
+	p := []string{"_"}
+	p = append(p, keys...)
+	return tb.Get(p...)
+}
+
+func (tb *TextBot) Add(responders ...Responder) *TextBot {
 	for _, r := range responders {
-		tb.index[r.UUID] = r
+		tb.index[r.UUID()] = r
+		for _, k := range r.Keys() {
+			tb.keys = append(tb.keys, k)
+		}
 		tb.responders = append(tb.responders, r)
 	}
 	return tb
 }
 
+//TODO Remove
+
 func (tb *TextBot) Respond() {
 	if len(os.Args) > 1 {
 		tb.PrintResponseTo(strings.Join(os.Args[1:], " "))
 	} else {
-		tb.RespondToInput()
+		tb.RespondToREPL()
 	}
+	tb.Save()
+}
+
+func (tb *TextBot) Save() {
 	tb.state.Save()
 }
 
@@ -42,12 +69,11 @@ func (tb *TextBot) PrintResponseTo(text string) {
 	fmt.Println(tb.RespondTo(text))
 }
 
-func (tb *TextBot) RespondToInput() {
+func (tb *TextBot) RespondToREPL() {
 	//TODO
 }
 
-func (tb *TextBot) RespondToPort() {
-}
+//TODO Listen()
 
 // Eventually modify RespondTo to responders into blocks (arrays) of
 // responders and run several goroutines to asynchronously find the
