@@ -117,8 +117,9 @@ func (jc *State) Set(params ...interface{}) {
 	if n == 2 {
 		jc.Data[params[n-2].(string)] = val
 		jc.unsaved = true
+		return
 	}
-	//TODO wind, magically inflate
+	//TODO inflate
 }
 
 // Load initializes the State object with data freshly loaded from the

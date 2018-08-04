@@ -14,3 +14,29 @@ func (d Data) String() string {
 	}
 	return string(byt)
 }
+
+func (d Data) Get(keys ...string) interface{} {
+	v := d.Get(keys[0])
+	return v
+}
+
+func (d Data) Set(p ...interface{}) {
+
+	if len(p) == 2 {
+		d[p[0].(string)] = p[1]
+		return
+	}
+
+	if len(p) > 2 {
+		m := d[p[0]]
+		if m == nil { // make a new one
+		}
+		if m.(type) != Data {
+			panic(MustBeDataType)
+		}
+	}
+
+	if len(p) < 2 {
+		panic(MissingParams)
+	}
+}
