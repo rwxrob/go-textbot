@@ -14,16 +14,16 @@ func Example() {
 	text := "How's   it goin  there, Mr. Rob?"
 
 	fmt.Println(greet1.MatchString(text))
-	fmt.Println(greet1.M(text))
-	fmt.Println(greet2.M(text))
-	fmt.Println(greet3.M(text))
+	fmt.Println(greet1.Is(text))
+	fmt.Println(greet2.Is(text))
+	fmt.Println(greet3.Is(text))
 
 	fmt.Println()
 
 	text = "how's it going there mr rob"
-	fmt.Println(greet1.M(text))
-	fmt.Println(greet2.M(text))
-	fmt.Println(greet3.M(text))
+	fmt.Println(greet1.Is(text))
+	fmt.Println(greet2.Is(text))
+	fmt.Println(greet3.Is(text))
 
 	fmt.Println()
 

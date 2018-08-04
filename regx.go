@@ -23,7 +23,7 @@ func X(s string) *Regx {
 	return &Regx{re.MustCompile(SpaceToRegx(s))}
 }
 
-func (r *Regx) M(s string) bool {
+func (r *Regx) Is(s string) bool {
 	return r.MatchString(s)
 }
 

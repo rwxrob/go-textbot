@@ -16,7 +16,11 @@ func (d Data) Get(keys ...string) interface{} {
 	if len(keys) > 1 {
 		i := d
 		for n := 0; n < len(keys)-1; n++ {
-			i = i[keys[n]].(Data)
+			if newi, ok := i[keys[n]]; ok {
+				i = newi.(Data)
+			} else {
+				return nil
+			}
 		}
 		return i[keys[len(keys)-1]]
 	}

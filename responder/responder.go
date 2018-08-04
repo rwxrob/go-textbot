@@ -2,8 +2,10 @@ package responder
 
 import (
 	tb "github.com/robmuh/go-textbot"
-	s "strings"
 )
+
+var show = tb.X(`(?i)show state|cache`)
+var dump = tb.X(`(?i)braindump`)
 
 type Responder struct{}
 
@@ -16,8 +18,7 @@ func (r *Responder) Keys() []string {
 }
 
 func (r *Responder) RespondTo(t string, c *tb.State) string {
-	t = s.ToLower(t)
-	if s.HasPrefix(t, "show state") {
+	if show.Is(t) || dump.Is(t) {
 		return c.Pretty()
 	}
 	return ""
