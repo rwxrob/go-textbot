@@ -97,6 +97,10 @@ func (tb *TextBot) RespondTo(text string) string {
 	return ""
 }
 
+func (tb *TextBot) String() string {
+	return tb.state.String()
+}
+
 func (tb *TextBot) Pretty() string {
 	return tb.state.Pretty()
 }
@@ -104,3 +108,5 @@ func (tb *TextBot) Pretty() string {
 func (tb *TextBot) Print() {
 	tb.state.Print()
 }
+
+//TODO delegate add Marshal and Unmarshal JSON to state

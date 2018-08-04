@@ -89,7 +89,7 @@ func NewStateFromFile(path string, args ...string) (*State, error) {
 	return NewStateFromJSON(byt, args...)
 }
 
-// TODO:
+// TODO: functions to add to or merge into the existing state
 // func Import
 // func ImportFile
 // func ImportJSON
@@ -208,3 +208,5 @@ func (jc *State) Pretty() string {
 func (jc *State) Print() {
 	fmt.Print(jc.Pretty())
 }
+
+//TODO delegate add Marshal and Unmarshal JSON to data
