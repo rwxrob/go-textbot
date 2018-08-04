@@ -1,0 +1,6 @@
+(?m)answ
+answers = [
+  "Yes.",
+  "No.",
+  "Maybe."
+  ]

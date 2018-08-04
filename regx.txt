@@ -1,0 +1,2 @@
+(?i)how('|\si)s\s+it\s+goin(g|')?\s+there,?\s+mr.?\s+rob
+How's   it goin  there, Mr. Rob?
