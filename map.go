@@ -16,24 +16,24 @@ func NewMap() Map {
 	return m
 }
 
-func (m Map) Set(key string, val interface{}) {
+func (m Map) Set(p ...interface{}) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.data[key] = val
+	m.data.Set(p...)
 }
 
-func (m Map) Get(key string) interface{} {
+func (m Map) Get(keys ...string) interface{} {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	return m.data[key]
+	return m.data.Get(keys...)
 }
 
 func (m Map) String() string {
-	return JSONString(m.data)
+	return m.data.String()
 }
 
 func (m Map) MarshalJSON() ([]byte, error) {
-	return []byte(JSONString(m.data)), nil
+	return json.Marshal(m.data)
 }
 
 func (m Map) UnmarshalJSON(byt []byte) error {

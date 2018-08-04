@@ -43,7 +43,7 @@ func (jc *State) Path() string {
 // automatic Save.
 func NewState(args ...string) *State {
 	jc := new(State)
-	jc.Data = map[string]interface{}{}
+	jc.Data = Data{}
 	jc.Every = "0s" // default
 
 	if len(args) > 0 {
@@ -97,29 +97,13 @@ func NewStateFromFile(path string, args ...string) (*State, error) {
 func (jc *State) Get(keys ...string) interface{} {
 	jc.mu.Lock()
 	defer jc.mu.Unlock()
-	n := len(keys)
-	key := keys[n-1]
-	if n == 1 {
-		return jc.Data[key]
-	}
-	//TODO unwind
-	return nil
+	return jc.Data.Get(keys...)
 }
 
-func (jc *State) Set(params ...interface{}) {
+func (jc *State) Set(p ...interface{}) {
 	jc.mu.Lock()
 	defer jc.mu.Unlock()
-	n := len(params)
-	if n < 2 {
-		panic(MissingParams)
-	}
-	val := params[n-1]
-	if n == 2 {
-		jc.Data[params[n-2].(string)] = val
-		jc.unsaved = true
-		return
-	}
-	//TODO inflate
+	jc.Data.Set(p...)
 }
 
 // Load initializes the State object with data freshly loaded from the
@@ -219,4 +203,8 @@ func (jc *State) Pretty() string {
 		fmt.Sprintf("{\"ERROR\":\"%v\"}", err)
 	}
 	return string(byt)
+}
+
+func (jc *State) Print() {
+	fmt.Print(jc.Pretty())
 }

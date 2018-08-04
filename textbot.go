@@ -10,7 +10,6 @@ type TextBot struct {
 	responders []Responder
 	index      map[string]Responder
 	state      *State
-	meta       *Map
 	keys       []string
 }
 
@@ -21,22 +20,18 @@ func New(responders ...Responder) *TextBot {
 	tb.Add(responders...)
 	tb.state.Every = "10s"
 	tb.state.Load()
-	tb.Set("prompt", "> ")
+	tb.Set("_", "prompt", "> ")
 	return tb
 }
 
 func (tb *TextBot) Keys() []string { return tb.keys }
 
-func (tb *TextBot) Set(params ...interface{}) {
-	p := []interface{}{"_"}
-	p = append(p, params...)
+func (tb *TextBot) Set(p ...interface{}) {
 	tb.state.Set(p...)
 }
 
 func (tb *TextBot) Get(keys ...string) interface{} {
-	p := []string{"_"}
-	p = append(p, keys...)
-	return tb.Get(p...)
+	return tb.Get(keys...)
 }
 
 func (tb *TextBot) Add(responders ...Responder) *TextBot {

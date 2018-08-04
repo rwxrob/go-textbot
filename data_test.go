@@ -37,6 +37,7 @@ func ExampleData_Print() {
 	d.Set("org", "people", "robmuh", "empty", nil)
 	d.Set("org", "people", "betropper", "name", "Ben")
 	d.Set("org", "people", "betropper", "local", false)
+
 	d.Print()
 
 	// Output:
@@ -56,4 +57,56 @@ func ExampleData_Print() {
 	//     }
 	//   }
 	// }
+}
+
+func ExampleData_Pretty() {
+	d := Data{}
+	d.Set("org", "people", "robmuh", "name", "Mr. Rob")
+	d.Set("org", "people", "robmuh", "age", 50)
+	d.Set("org", "people", "robmuh", "local", true)
+	d.Set("org", "people", "robmuh", "empty", nil)
+	d.Set("org", "people", "betropper", "name", "Ben")
+	d.Set("org", "people", "betropper", "local", false)
+
+	fmt.Print(d.Pretty())
+
+	// Output:
+	// {
+	//   "org": {
+	//     "people": {
+	//       "betropper": {
+	//         "local": false,
+	//         "name": "Ben"
+	//       },
+	//       "robmuh": {
+	//         "age": 50,
+	//         "empty": null,
+	//         "local": true,
+	//         "name": "Mr. Rob"
+	//       }
+	//     }
+	//   }
+	// }
+}
+
+func ExampleData_Get_1() {
+	d := Data{"name": "Mr. Rob"}
+	fmt.Println(d.Get("name"))
+
+	// Output:
+	// Mr. Rob
+}
+
+func ExampleData_Get_2() {
+	d := Data{
+		"people": Data{
+			"robmuh": Data{
+				"name": "Mr. Rob",
+			},
+		},
+	}
+	fmt.Println(d.Get("people", "robmuh", "name"))
+
+	// Output:
+	// Mr. Rob
 }

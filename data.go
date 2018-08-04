@@ -8,8 +8,24 @@ import (
 type Data map[string]interface{}
 
 func (d Data) Get(keys ...string) interface{} {
-	v := d.Get(keys[0])
-	return v
+
+	if len(keys) == 1 {
+		return d[keys[0]]
+	}
+
+	if len(keys) > 1 {
+		i := d
+		for n := 0; n < len(keys)-1; n++ {
+			i = i[keys[n]].(Data)
+		}
+		return i[keys[len(keys)-1]]
+	}
+
+	if len(keys) < 1 {
+		panic(MissingParams)
+	}
+
+	return nil
 }
 
 func (d Data) Set(p ...interface{}) {
