@@ -27,6 +27,10 @@ func (r *Regx) Is(s string) bool {
 	return r.MatchString(s)
 }
 
+func (r *Regx) Has(s string) []string {
+	return r.FindStringSubmatch(s)
+}
+
 // CrunchSpace is the fastest possible method to crunch all unicode
 // spaces into a single space, the first one detected.
 func CrunchSpace(s string) string {

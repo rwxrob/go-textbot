@@ -49,6 +49,10 @@ func (tb *TextBot) Add(responders ...Responder) *TextBot {
 	return tb
 }
 
+func (tb *TextBot) LockFor(r Responder) {
+	tb.Set("_", "lock", r.UUID())
+}
+
 //TODO Remove
 
 func (tb *TextBot) Respond() {
@@ -79,15 +83,69 @@ func (tb *TextBot) RespondToREPL() {
 // responders.
 
 func (tb *TextBot) RespondTo(text string) string {
-	// TODO check the open session responder block first
+	text = strings.Trim(text, " ")
+
+	// fetch the function refs that match uuids
+
+	last := tb.Get("_", "last")
+	lastr := []Responder{}
+	for _, s := range last.([]interface{}) {
+		lastr = append(lastr, tb.index[s.(string)])
+	}
+
+	// call the last 10 most recent
+
+	if last != nil {
+		for _, r := range lastr {
+			response := r.RespondTo(text, tb.state)
+			if response != "" {
+				tb.push(r)
+				tb.Save()
+				return response
+			}
+		}
+	}
+
+	// then try them all (except the last)
+
 	for _, r := range tb.responders {
-		response := r.RespondTo(strings.Trim(text, " "), tb.state)
+		if isrecent(r, lastr) {
+			continue
+		}
+		response := r.RespondTo(text, tb.state)
 		if response != "" {
+			tb.push(r)
 			tb.Save()
 			return response
 		}
 	}
 	return ""
+}
+
+func isrecent(r Responder, last []Responder) bool {
+	for _, one := range last {
+		if r == one {
+			return true
+		}
+	}
+	return false
+}
+
+func (tb *TextBot) push(r Responder) {
+	last := tb.Get("_", "last")
+	uuid := r.UUID()
+	new := []string{uuid}
+	if last != nil {
+		for n, s := range last.([]interface{}) {
+			if s.(string) != uuid {
+				new = append(new, s.(string))
+			}
+			if n >= 10 {
+				break
+			}
+		}
+	}
+	tb.Set("_", "last", new)
 }
 
 func (tb *TextBot) String() string {
