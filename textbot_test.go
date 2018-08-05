@@ -1,8 +1,11 @@
 package textbot
 
+/*
+
 import (
 	"fmt"
 )
+
 
 func ExampleState_SetDef_1() {
 	s := New()
@@ -23,3 +26,4 @@ func ExampleState_SetDef_2() {
 	// Output:
 	// >
 }
+*/

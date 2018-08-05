@@ -24,7 +24,7 @@ type State struct {
 	File string `json:"file,omitempty"`
 
 	// Data is the actual key/value data.
-	Data Data `json:"data"`
+	Data map[string]interface{} `json:"data"`
 
 	// Every indicates the duration interval for automatic Saves (if any).
 	Every string `json:"every,omitempty"`
@@ -40,7 +40,7 @@ func (jc *State) Path() string {
 // automatic Save.
 func NewState(args ...string) *State {
 	jc := new(State)
-	jc.Data = Data{}
+	jc.Data = map[string]interface{}{}
 	jc.Every = "0s" // default
 
 	if len(args) > 0 {
@@ -91,13 +91,13 @@ func NewState(args ...string) *State {
 func (jc *State) Get(keys ...string) interface{} {
 	jc.mu.Lock()
 	defer jc.mu.Unlock()
-	return jc.Data.Get(keys...)
+	return Get(jc.Data, keys...)
 }
 
 func (jc *State) Set(p ...interface{}) {
 	jc.mu.Lock()
 	defer jc.mu.Unlock()
-	jc.Data.Set(p...)
+	Set(jc.Data, p...)
 	jc.unsaved = true
 }
 
