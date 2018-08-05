@@ -70,9 +70,7 @@ func NewState(args ...string) *State {
 		}
 		jc.Save()
 	} else {
-		fmt.Println(string(byt))
 		err := json.Unmarshal(byt, &jc)
-		fmt.Println(jc)
 		if err != nil {
 			panic(err)
 		}
@@ -180,5 +178,3 @@ func (jc *State) Pretty() string {
 func (jc *State) Print() {
 	fmt.Print(jc.Pretty())
 }
-
-//TODO delegate add Marshal and Unmarshal JSON to data
