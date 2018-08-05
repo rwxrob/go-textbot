@@ -1,2 +1,2 @@
-A work in progress TextBot framework library employing a simplified
-parallel responder pattern.
+Natural language framework for creating text-based bots leveraging
+regular expressions and using a parallel responder implementation.
