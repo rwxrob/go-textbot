@@ -31,14 +31,7 @@ func (tb *TextBot) Set(p ...interface{}) {
 }
 
 func (tb *TextBot) SetDef(p ...interface{}) {
-	keys := []string{}
-	for _, k := range p[:len(p)-1] {
-		keys = append(keys, k.(string))
-	}
-	cur := tb.state.Get(keys...)
-	if cur == nil {
-		tb.state.Set(p...)
-	}
+	tb.state.SetDef(p...)
 }
 
 func (tb *TextBot) Get(keys ...string) interface{} {

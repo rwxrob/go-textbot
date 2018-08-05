@@ -101,6 +101,10 @@ func (jc *State) Set(p ...interface{}) {
 	jc.unsaved = true
 }
 
+func (jc *State) SetDef(p ...interface{}) {
+	SetDef(jc.Data, p...)
+}
+
 // autosave is always started for every new cache but does nothing
 // unless the Every duration is set to something other than zero, which
 // it checks for every second.

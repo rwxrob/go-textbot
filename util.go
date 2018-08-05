@@ -61,7 +61,18 @@ func Set(m map[string]interface{}, p ...interface{}) {
 	}
 }
 
-func Pretty(m map[string]interface{}) string {
+func SetDef(m map[string]interface{}, p ...interface{}) {
+	keys := []string{}
+	for _, k := range p[:len(p)-1] {
+		keys = append(keys, k.(string))
+	}
+	cur := Get(m, keys...)
+	if cur == nil {
+		Set(m, p...)
+	}
+}
+
+func JSON(m map[string]interface{}) string {
 	byt, err := json.MarshalIndent(m, "", "  ")
 	if err != nil {
 		return fmt.Sprintf("{\"ERROR\":\"%v\"}", err)
@@ -70,5 +81,5 @@ func Pretty(m map[string]interface{}) string {
 }
 
 func Print(m map[string]interface{}) {
-	fmt.Print(Pretty(m))
+	fmt.Print(JSON(m))
 }
