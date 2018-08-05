@@ -71,3 +71,13 @@ func (d Data) String() string {
 	}
 	return string(byt)
 }
+
+func (d Data) UnmarshalJSON(b []byte) error {
+	var newd map[string]interface{}
+	//FIXME
+	if err := json.Unmarshal(b, &newd); err != nil {
+		return err
+	}
+	d = Data(newd)
+	return nil
+}

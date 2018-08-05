@@ -19,8 +19,8 @@ func New(responders ...Responder) *TextBot {
 	tb.state = NewState()
 	tb.Add(responders...)
 	tb.state.Every = "10s"
-	tb.state.Load()
-	//tb.SetDef("_", "prompt", "> ")
+	tb.SetDef("_", "prompt", "> ")
+	tb.Save()
 	return tb
 }
 
@@ -64,7 +64,6 @@ func (tb *TextBot) Respond() {
 	} else {
 		tb.RespondToREPL()
 	}
-	tb.Save()
 }
 
 func (tb *TextBot) Save() {
@@ -91,6 +90,7 @@ func (tb *TextBot) RespondTo(text string) string {
 	for _, r := range tb.responders {
 		response := r.RespondTo(strings.Trim(text, " "), tb.state)
 		if response != "" {
+			tb.Save()
 			return response
 		}
 	}

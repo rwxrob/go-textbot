@@ -26,9 +26,6 @@ type State struct {
 	// Data is the actual key/value data.
 	Data Data `json:"data"`
 
-	// Save is set to the last time a save successfully completed.
-	Saved time.Time `json:"-"`
-
 	// Every indicates the duration interval for automatic Saves (if any).
 	Every string `json:"every,omitempty"`
 }
@@ -66,27 +63,24 @@ func NewState(args ...string) *State {
 		jc.Every = args[2]
 	}
 
+	byt, err := ioutil.ReadFile(jc.Path())
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return nil
+		}
+		jc.Save()
+	} else {
+		fmt.Println(string(byt))
+		err := json.Unmarshal(byt, &jc)
+		fmt.Println(jc)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	go jc.autosave()
 
 	return jc
-}
-
-func NewStateFromJSON(jsn []byte, args ...string) (*State, error) {
-	jc := NewState(args...)
-	err := json.Unmarshal(jsn, &jc)
-	return jc, err
-}
-
-// NewStateFromFile uses the specific path to read a json file. However, the
-// path does not automatically set the Dir and File, which must be
-// provided as separate args as well if the default initial values are
-// not wanted.
-func NewStateFromFile(path string, args ...string) (*State, error) {
-	byt, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	return NewStateFromJSON(byt, args...)
 }
 
 // TODO: functions to add to or merge into the existing state
@@ -104,18 +98,7 @@ func (jc *State) Set(p ...interface{}) {
 	jc.mu.Lock()
 	defer jc.mu.Unlock()
 	jc.Data.Set(p...)
-}
-
-// Load initializes the State object with data freshly loaded from the
-// current Path() throwing away the reference to any previous Data
-// (which will be cleaned up with normal garbage collection).
-func (jc *State) Load() error {
-	newjc, err := NewStateFromFile(jc.Path())
-	if err != nil {
-		return err
-	}
-	jc.Data = newjc.Data
-	return nil
+	jc.unsaved = true
 }
 
 // autosave is always started for every new cache but does nothing
@@ -140,45 +123,31 @@ func (jc *State) autosave() {
 	}
 }
 
-// Save checks the last modified time of the file and refuses to
-// overwrite it if the Saved time is older and returns
-// a NewerCacheError.
+// Save saves the file if it needs saving. No attempt to check if
+// something else has modified the file is made.
 func (jc *State) Save() error {
 
-	//fmt.Println(jc)
-
 	if !jc.unsaved {
-		//println("nothing to save")
 		return nil
 	}
 
 	jc.mu.Lock()
 	defer jc.mu.Unlock()
 
-	// do we even have a file?
-	i, err := os.Stat(jc.Path())
+	_, err := os.Stat(jc.Path())
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return err
 		} else {
-			//println("no path found for ", jc.Path())
 			os.MkdirAll(jc.Dir, 0700)
-		}
-	} else {
-		if !jc.Saved.IsZero() && i.ModTime().After(jc.Saved) {
-			return NewerCacheError
 		}
 	}
 
-	prevs := jc.Saved
 	prevu := jc.unsaved
-
-	jc.Saved = time.Now()
 	jc.unsaved = false
 
 	err = ioutil.WriteFile(jc.Path(), []byte(jc.String()), 0600)
 	if err != nil {
-		jc.Saved = prevs
 		jc.unsaved = prevu
 		return err
 	}
@@ -189,7 +158,6 @@ func (jc *State) Save() error {
 func (jc *State) ForceSave() error {
 	jc.mu.Lock()
 	defer jc.mu.Unlock()
-	jc.Saved = time.Now()
 	return ioutil.WriteFile(jc.Path(), []byte(jc.String()), 0600)
 }
 
